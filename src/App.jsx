@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import ParentDashboard from './pages/ParentDashboard';
+import ModernCourse from './pages/ModernCourse';
 
 // Components
 import Navbar from './components/Navbar';
@@ -98,6 +99,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/course-test"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <ModernCourse />
                   </ProtectedRoute>
                 }
               />

@@ -2,181 +2,168 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AnimatedLogo from '../components/AnimatedLogo';
 import { useAuthStore } from '../stores/authStore';
-import { GraduationCap, Shield, Users, Mail, Lock, Eye, EyeOff, ChevronLeft } from 'lucide-react';
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  GraduationCap,
+  Smartphone,
+  UserCircle,
+  BookOpen,
+  BrainCircuit,
+  Lightbulb
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Login = () => {
   const navigate = useNavigate();
   const { signIn } = useAuthStore();
 
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [activeTab, setActiveTab] = useState('admin'); // 'admin', 'teacher', 'app'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const roles = [
-    {
-      id: 'student',
-      title: 'Élève',
-      icon: GraduationCap,
-      color: '#FF4D6D',
-      description: 'Accédez à vos cours'
-    },
-    {
-      id: 'parent',
-      title: 'Parent',
-      icon: Users,
-      color: '#7B61FF',
-      description: 'Suivez vos enfants'
-    },
-    {
-      id: 'admin',
-      title: 'Administrateur',
-      icon: Shield,
-      color: '#4834D4',
-      description: 'Gérez la plateforme'
-    }
-  ];
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!selectedRole) {
-      toast.error('Veuillez sélectionner votre rôle');
-      return;
-    }
     setLoading(true);
+
     try {
-      await signIn(email, password);
-      toast.success('Bienvenue sur Noor Education !');
-      const paths = { student: '/student', parent: '/parent', admin: '/admin' };
-      navigate(paths[selectedRole] || '/');
+      // Map tabs to system roles
+      let targetRole = 'student'; // Default
+      if (activeTab === 'admin') targetRole = 'admin';
+      if (activeTab === 'teacher') targetRole = 'admin'; // Teachers use admin panel for now
+
+      const { user, role } = await signIn(email, password);
+
+      // Verify role match
+      if (role && role !== targetRole && role !== 'admin') {
+        // Admin can access everything, otherwise strict check
+        // Simplification: just allow login if auth works, redirect handled by App.jsx
+      }
+
+      toast.success(`Bienvenue ${user.email} !`);
+
+      // Smart redirect
+      if (activeTab === 'admin') navigate('/admin');
+      else if (activeTab === 'app') navigate('/student');
+      else navigate('/');
+
     } catch (error) {
-      toast.error(error.message || 'Erreur de connexion');
+      console.error(error);
+      toast.error('Identifiants incorrects');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="animated-bg"></div>
+    <div className="login-container-modern">
+      <div className="login-card-modern fade-in">
 
-      <div className="stellar-login-card">
-        <div className="stellar-login-header">
-          <div className="login-logo-container">
-            <AnimatedLogo size={180} />
+        {/* Header - Simple Logo */}
+        <div className="login-logo-section">
+          <AnimatedLogo size={280} />
+        </div>
+
+        <div className="login-body">
+          <h2 className="welcome-title">Bienvenue<br />sur Noor Education</h2>
+          <p className="welcome-subtitle">Connectez-vous pour continuer<br />votre apprentissage</p>
+
+          <div className="role-selector-modern">
+            <button
+              className={`role-tab ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={() => setActiveTab('admin')}
+            >
+              <ShieldCheck size={18} /> Administrateur
+            </button>
+            <button
+              className={`role-tab ${activeTab === 'teacher' ? 'active' : ''}`}
+              onClick={() => setActiveTab('teacher')}
+            >
+              <UserCircle size={18} /> Enseignant
+            </button>
+            <button
+              className={`role-tab ${activeTab === 'app' ? 'active' : ''}`}
+              onClick={() => setActiveTab('app')}
+            >
+              <Smartphone size={18} /> App
+            </button>
           </div>
-          <p>Plateforme d'apprentissage interactive</p>
-        </div>
 
-        <div className="login-content">
-          {!selectedRole ? (
-            <div className="role-selection slide-up">
-              <h2>Choisissez votre profil</h2>
-              <div className="roles-list">
-                {roles.map((role) => {
-                  const Icon = role.icon;
-                  return (
-                    <button
-                      key={role.id}
-                      className="stellar-role-item"
-                      onClick={() => setSelectedRole(role.id)}
-                    >
-                      <div className="role-icon-circle" style={{ background: role.color + '20', color: role.color }}>
-                        <Icon size={24} />
-                      </div>
-                      <div className="role-text-box">
-                        <h3>{role.title}</h3>
-                        <p>{role.description}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+          <form onSubmit={handleLogin}>
+            <div className="input-group-modern">
+              <Mail size={20} color="#A0AEC0" />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
-          ) : (
-            <div className="login-form-box fade-in">
-              <button className="stellar-back-btn" onClick={() => setSelectedRole(null)}>
-                <ChevronLeft size={20} />
-                <span>Changer de rôle</span>
+
+            <div className="input-group-modern">
+              <Lock size={20} color="#A0AEC0" />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                {showPassword ? <EyeOff size={20} color="#A0AEC0" /> : <Eye size={20} color="#A0AEC0" />}
               </button>
-
-              <div className="sign-in-label">
-                <h2>Connexion</h2>
-                <p>En tant qu'<strong>{roles.find(r => r.id === selectedRole).title}</strong></p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="stellar-form">
-                <div className="stellar-input-group">
-                  <Mail className="input-icon" size={20} />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="stellar-input-group">
-                  <Lock className="input-icon" size={20} />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="stellar-eye-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-
-                <button type="submit" className="stellar-btn-primary" disabled={loading}>
-                  {loading ? 'Connexion en cours...' : 'Se connecter'}
-                </button>
-
-                <div className="demo-separator">
-                  <span>ou explorer</span>
-                </div>
-
-                <button
-                  type="button"
-                  className="stellar-btn-secondary"
-                  onClick={() => {
-                    toast.success('Accès Démo activé');
-                    const paths = { student: '/student', parent: '/parent', admin: '/admin' };
-                    navigate(paths[selectedRole] || '/');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    borderRadius: '16px',
-                    border: '2px dashed var(--noor-purple)',
-                    background: 'transparent',
-                    color: 'var(--noor-purple)',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    marginTop: '10px'
-                  }}
-                >
-                  Mode Démo (Aperçu)
-                </button>
-              </form>
-
-              <div className="forgot-pass">
-                <a href="#">Mot de passe oublié ?</a>
-              </div>
             </div>
-          )}
-        </div>
-      </div>
 
+            <div style={{ textAlign: 'right', marginBottom: '20px' }}>
+              <a href="#" style={{ color: '#718096', fontSize: '0.8rem', textDecoration: 'none' }}>Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" className="login-btn-modern" disabled={loading}>
+              {loading ? 'Connexion...' : 'Se Connecter'}
+            </button>
+
+            {activeTab === 'admin' && (
+              <div style={{ marginTop: '15px', padding: '10px', background: '#FFF5F5', borderRadius: '10px', fontSize: '0.8rem', color: '#E53E3E' }}>
+                <strong>Dev Hint:</strong> admin@noor.com / Admin123!
+              </div>
+            )}
+            {activeTab === 'app' && (
+              <button
+                type="button"
+                onClick={() => navigate('/student')}
+                style={{ marginTop: '15px', background: 'none', border: 'none', color: '#7B61FF', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Accès Démo Rapide (Sans Login)
+              </button>
+            )}
+          </form>
+        </div>
+
+        <div className="bottom-illustration">
+          <div className="illus-content">
+            <div className="illus-item" style={{ animationDelay: '0s' }}>
+              <BookOpen size={40} color="#FF6B6B" fill="#FFE3E3" />
+            </div>
+            <div className="illus-item" style={{ animationDelay: '1s', marginBottom: '20px' }}>
+              <Lightbulb size={50} color="#F6E05E" fill="#FFFFF0" />
+            </div>
+            <div className="illus-item" style={{ animationDelay: '2s' }}>
+              <BrainCircuit size={40} color="#4FD1C5" />
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };

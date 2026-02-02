@@ -116,11 +116,44 @@ const StudentDashboard = () => {
         <div className="dashboard-grid-flex">
           {/* Courses Section */}
           <div className="courses-section-stellar">
-            <div className="section-header">
-              <BookOpen size={22} color="var(--noor-secondary)" />
-              <h2>Mes Cours en cours</h2>
+            <div className="section-header-stellar">
+              <Star size={24} className="icon-pulse" color="var(--noor-primary)" />
+              <h2>Nouveau : Cours Interactif</h2>
+              <span className="badge-new">Format Premium</span>
             </div>
-            <div className="courses-grid">
+
+            <div
+              className="course-card-stellar-container special-test-card"
+              onClick={() => window.location.href = '/student/course-test'}
+              style={{ cursor: 'pointer', marginBottom: '40px' }}
+            >
+              <div className="course-card-stellar" style={{ border: '2px dashed var(--noor-primary)', background: 'rgba(72, 52, 212, 0.05)' }}>
+                <div className="course-badge" style={{ background: 'var(--noor-primary)' }}>Nouveau</div>
+                <div className="course-content-stellar">
+                  <div className="course-main-info">
+                    <div className="course-emoji-box" style={{ background: 'var(--noor-primary)' }}>🇬🇧</div>
+                    <div className="course-text-details">
+                      <h3>Anglais : The Last Photo</h3>
+                      <p>Format Interactif Noor 2.0 • Testez l'expérience</p>
+                    </div>
+                  </div>
+                  <div className="course-status-row">
+                    <span className="status-label" style={{ color: 'var(--noor-primary)', fontWeight: '700' }}>
+                      Cliquez pour commencer le test
+                    </span>
+                    <button className="continue-btn" style={{ background: 'var(--noor-primary)' }}>
+                      <Play size={16} fill="white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="section-header-stellar">
+              <BookOpen size={24} />
+              <h2>Mes Cours en Cours</h2>
+            </div>
+            <div className="courses-grid-stellar">
               {courses.map((course, index) => (
                 <div key={course.id} className="course-card-stellar card slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="course-card-inner">
