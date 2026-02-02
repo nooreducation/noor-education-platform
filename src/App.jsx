@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './stores/authStore';
+import { useThemeStore } from './stores/themeStore';
 
 // Pages
 import Login from './pages/Login';
@@ -57,10 +58,12 @@ const HomeRedirect = () => {
 
 function App() {
   const { initialize, loading } = useAuthStore();
+  const { initTheme } = useThemeStore();
 
   useEffect(() => {
     initialize();
-  }, [initialize]);
+    initTheme();
+  }, [initialize, initTheme]);
 
   if (loading) {
     return <LoadingSpinner />;

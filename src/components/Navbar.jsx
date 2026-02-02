@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { useThemeStore } from '../stores/themeStore';
 import {
   GraduationCap,
   LayoutDashboard,
@@ -10,7 +11,10 @@ import {
   Menu,
   X,
   Bell,
-  TrendingUp
+  TrendingUp,
+  Search,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -18,6 +22,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, role, signOut } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -29,7 +34,6 @@ const Navbar = () => {
     }
   };
 
-  // Navigation items based on role
   const getNavItems = () => {
     switch (role) {
       case 'admin':
@@ -37,21 +41,21 @@ const Navbar = () => {
           { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
           { path: '/admin/students', icon: Users, label: 'Élèves' },
           { path: '/admin/courses', icon: BookOpen, label: 'Cours' },
-          { path: '/admin/settings', icon: Settings, label: 'Paramètres' }
+          { path: '/admin/settings', icon: Settings, label: 'Settings' }
         ];
       case 'student':
         return [
           { path: '/student', icon: LayoutDashboard, label: 'Dashboard' },
           { path: '/student/courses', icon: BookOpen, label: 'Mes Cours' },
-          { path: '/student/progress', icon: TrendingUp, label: 'Progression' },
+          { path: '/student/progress', icon: TrendingUp, label: 'Progrès' },
           { path: '/student/profile', icon: Settings, label: 'Profil' }
         ];
       case 'parent':
         return [
           { path: '/parent', icon: LayoutDashboard, label: 'Dashboard' },
-          { path: '/parent/children', icon: Users, label: 'Mes Enfants' },
+          { path: '/parent/children', icon: Users, label: 'Enfants' },
           { path: '/parent/messages', icon: Bell, label: 'Messages' },
-          { path: '/parent/settings', icon: Settings, label: 'Paramètres' }
+          { path: '/parent/settings', icon: Settings, label: 'Settings' }
         ];
       default:
         return [];
@@ -64,18 +68,18 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="navbar">
-        <div className="navbar-container">
-          {/* Logo */}
-          <Link to="/" className="navbar-logo">
-            <div className="logo-icon">
-              <GraduationCap size={28} />
+      <nav className="navbar-stellar">
+        <div className="nav-container-stellar">
+          {/* Brand */}
+          <Link to="/" className="brand-stellar">
+            <div className="brand-icon-box">
+              <GraduationCap size={24} color="white" strokeWidth={2.5} />
             </div>
-            <span className="logo-text">Noor Education</span>
+            <span className="brand-text">Noor Education</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="navbar-nav">
+          {/* Nav Links */}
+          <div className="nav-links-stellar">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -83,35 +87,42 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`nav-link ${isActive ? 'active' : ''}`}
+                  className={`stellar-nav-link ${isActive ? 'active' : ''}`}
                 >
-                  <Icon size={20} />
+                  <Icon size={18} />
                   <span>{item.label}</span>
                 </Link>
               );
             })}
           </div>
 
-          {/* Right Section */}
-          <div className="navbar-actions">
-            <button className="icon-button">
-              <Bell size={20} />
-              <span className="notification-badge">3</span>
+          {/* Right Actions */}
+          <div className="nav-actions-stellar">
+            <button className="nav-action-btn theme-toggle" onClick={toggleTheme}>
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
 
-            <div className="user-menu">
-              <div className="user-avatar">
+            <div className="nav-search-box">
+              <Search size={18} color="#A0AEC0" />
+            </div>
+
+            <button className="nav-action-btn">
+              <Bell size={20} />
+              <div className="nav-badge"></div>
+            </button>
+
+            <div className="nav-user-profile">
+              <div className="nav-avatar">
                 {user?.email?.charAt(0).toUpperCase()}
               </div>
             </div>
 
-            <button className="icon-button logout-btn" onClick={handleLogout}>
+            <button className="nav-logout-btn" onClick={handleLogout} title="Déconnexion">
               <LogOut size={20} />
             </button>
 
-            {/* Mobile Menu Button */}
             <button
-              className="mobile-menu-btn"
+              className="stellar-mobile-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -122,7 +133,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="mobile-menu">
+        <div className="stellar-mobile-menu">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -130,7 +141,7 @@ const Navbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+                className={`stellar-mobile-link ${isActive ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Icon size={20} />
@@ -138,10 +149,10 @@ const Navbar = () => {
               </Link>
             );
           })}
-          <button
-            className="mobile-nav-link logout"
-            onClick={handleLogout}
-          >
+          <button className="theme-toggle-mobile stellar-mobile-link" onClick={toggleTheme}>
+            {theme === 'light' ? <><Moon size={20} /> Mode Sombre</> : <><Sun size={20} /> Mode Clair</>}
+          </button>
+          <button className="stellar-mobile-link logout" onClick={handleLogout}>
             <LogOut size={20} />
             <span>Déconnexion</span>
           </button>
@@ -149,221 +160,231 @@ const Navbar = () => {
       )}
 
       <style jsx>{`
-        .navbar {
+        .navbar-stellar {
           position: sticky;
           top: 0;
-          z-index: 100;
-          background: var(--bg-card);
-          backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          padding: var(--spacing-md) 0;
+          z-index: 1000;
+          background: var(--bg-secondary);
+          height: 80px;
+          display: flex;
+          align-items: center;
+          box-shadow: var(--shadow-sm);
+          border-bottom: 1px solid var(--border-color);
+          transition: background var(--transition-base);
         }
 
-        .navbar-container {
+        .nav-container-stellar {
+          width: 100%;
           max-width: 1400px;
           margin: 0 auto;
-          padding: 0 var(--spacing-lg);
+          padding: 0 30px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: var(--spacing-xl);
+          gap: 40px;
         }
 
-        .navbar-logo {
+        .brand-stellar {
           display: flex;
           align-items: center;
-          gap: var(--spacing-sm);
+          gap: 15px;
           text-decoration: none;
-          color: var(--text-primary);
-          font-weight: 700;
-          font-size: 1.25rem;
-          transition: all var(--transition-fast);
+          min-width: fit-content;
         }
 
-        .navbar-logo:hover {
-          color: var(--noor-purple);
-        }
-
-        .logo-icon {
-          width: 40px;
-          height: 40px;
+        .brand-icon-box {
+          width: 42px;
+          height: 42px;
           background: var(--gradient-primary);
-          border-radius: var(--radius-md);
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          box-shadow: var(--shadow-primary);
         }
 
-        .navbar-nav {
+        .brand-text {
+          font-family: 'Poppins', sans-serif;
+          font-weight: 700;
+          font-size: 1.25rem;
+          color: var(--noor-secondary);
+        }
+
+        .nav-links-stellar {
           display: flex;
           align-items: center;
-          gap: var(--spacing-sm);
+          gap: 10px;
           flex: 1;
         }
 
-        .nav-link {
+        .stellar-nav-link {
           display: flex;
           align-items: center;
-          gap: var(--spacing-sm);
-          padding: 0.75rem 1.25rem;
+          gap: 10px;
+          padding: 10px 18px;
           border-radius: var(--radius-md);
           text-decoration: none;
           color: var(--text-secondary);
-          font-weight: 500;
-          transition: all var(--transition-base);
-          position: relative;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: var(--transition-base);
         }
 
-        .nav-link:hover {
-          color: var(--text-primary);
-          background: rgba(255, 255, 255, 0.05);
+        .stellar-nav-link:hover {
+          color: var(--noor-secondary);
+          background: var(--bg-tertiary);
         }
 
-        .nav-link.active {
-          color: white;
-          background: var(--gradient-primary);
+        .stellar-nav-link.active {
+          color: var(--noor-secondary);
+          background: var(--bg-tertiary);
         }
 
-        .navbar-actions {
+        .nav-actions-stellar {
           display: flex;
           align-items: center;
-          gap: var(--spacing-md);
+          gap: 15px;
         }
 
-        .icon-button {
+        .nav-search-box {
+           width: 40px;
+           height: 40px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           background: var(--bg-tertiary);
+           border-radius: 10px;
+           cursor: pointer;
+        }
+
+        .nav-action-btn {
           position: relative;
           width: 40px;
           height: 40px;
+          background: var(--bg-tertiary);
+          border: none;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: var(--bg-tertiary);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: var(--radius-md);
           color: var(--text-secondary);
           cursor: pointer;
-          transition: all var(--transition-base);
+          transition: var(--transition-base);
         }
 
-        .icon-button:hover {
-          background: var(--bg-secondary);
-          color: var(--noor-purple);
-          border-color: var(--noor-purple);
+        .nav-action-btn:hover {
+          background: var(--border-color);
+          color: var(--noor-secondary);
         }
 
-        .notification-badge {
+        .nav-badge {
           position: absolute;
-          top: -4px;
-          right: -4px;
-          width: 18px;
-          height: 18px;
-          background: var(--noor-orange);
+          top: 10px;
+          right: 10px;
+          width: 8px;
+          height: 8px;
+          background: var(--noor-primary);
+          border-radius: 50%;
+          border: 2px solid var(--bg-secondary);
+        }
+
+        .nav-avatar {
+          width: 42px;
+          height: 42px;
+          background: var(--gradient-header);
           color: white;
-          font-size: 0.625rem;
-          font-weight: 700;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
+          font-weight: 700;
+          box-shadow: var(--shadow-sm);
         }
 
-        .user-avatar {
+        .nav-logout-btn {
           width: 40px;
           height: 40px;
-          background: var(--gradient-primary);
-          border-radius: 50%;
+          background: rgba(255, 77, 109, 0.1);
+          border: none;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
-          font-weight: 700;
+          color: var(--noor-primary);
           cursor: pointer;
-          transition: all var(--transition-base);
+          transition: var(--transition-base);
         }
 
-        .user-avatar:hover {
-          transform: scale(1.05);
-          box-shadow: var(--shadow-glow);
+        .nav-logout-btn:hover {
+          background: var(--noor-primary);
+          color: white;
+          box-shadow: var(--shadow-accent);
         }
 
-        .logout-btn:hover {
-          color: var(--noor-orange);
-          border-color: var(--noor-orange);
-        }
-
-        .mobile-menu-btn {
+        .stellar-mobile-toggle {
           display: none;
+          background: transparent;
+          border: none;
+          color: var(--noor-secondary);
+          cursor: pointer;
         }
 
         /* Mobile Menu */
-        .mobile-menu {
+        .stellar-mobile-menu {
           position: fixed;
-          top: 73px;
+          top: 80px;
           left: 0;
           right: 0;
-          background: var(--bg-card);
-          backdrop-filter: blur(20px);
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          padding: var(--spacing-md);
-          z-index: 99;
+          background: var(--bg-secondary);
+          padding: 20px;
+          box-shadow: var(--shadow-lg);
+          z-index: 999;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
           animation: slideDown 0.3s ease-out;
+          border-top: 1px solid var(--border-color);
         }
 
-        .mobile-nav-link {
+        .stellar-mobile-link {
           display: flex;
           align-items: center;
-          gap: var(--spacing-md);
-          padding: var(--spacing-md);
-          border-radius: var(--radius-md);
+          gap: 15px;
+          padding: 15px;
+          border-radius: 12px;
           text-decoration: none;
           color: var(--text-secondary);
-          font-weight: 500;
-          transition: all var(--transition-base);
-          width: 100%;
-          border: none;
+          font-weight: 600;
+          transition: var(--transition-base);
           background: transparent;
+          border: none;
+          width: 100%;
           cursor: pointer;
           font-size: 1rem;
-          font-family: 'Inter', sans-serif;
         }
 
-        .mobile-nav-link:hover {
-          background: rgba(255, 255, 255, 0.05);
+        .stellar-mobile-link.active {
+          background: var(--bg-tertiary);
+          color: var(--noor-secondary);
         }
 
-        .mobile-nav-link.active {
-          background: var(--gradient-primary);
-          color: white;
+        .stellar-mobile-link.logout {
+          color: var(--noor-primary);
+          background: rgba(255, 77, 109, 0.05);
+          margin-top: 10px;
         }
 
-        .mobile-nav-link.logout {
-          color: var(--noor-orange);
-          margin-top: var(--spacing-md);
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          padding-top: var(--spacing-md);
-        }
-
-        @media (max-width: 768px) {
-          .navbar-nav {
+        @media (max-width: 1024px) {
+          .nav-links-stellar {
             display: none;
           }
-
-          .icon-button:not(.logout-btn) {
+          .nav-search-box {
             display: none;
           }
-
-          .user-avatar {
-            display: none;
-          }
-
-          .mobile-menu-btn {
+          .stellar-mobile-toggle {
             display: flex;
           }
-        }
-
-        @media (max-width: 500px) {
-          .logo-text {
+          .brand-text {
             display: none;
           }
         }
@@ -373,3 +394,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
