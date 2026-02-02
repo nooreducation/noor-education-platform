@@ -140,6 +140,33 @@ const Login = () => {
                 <button type="submit" className="stellar-btn-primary" disabled={loading}>
                   {loading ? 'Connexion en cours...' : 'Se connecter'}
                 </button>
+
+                <div className="demo-separator">
+                  <span>ou explorer</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="stellar-btn-secondary"
+                  onClick={() => {
+                    toast.success('Accès Démo activé');
+                    const paths = { student: '/student', parent: '/parent', admin: '/admin' };
+                    navigate(paths[selectedRole] || '/');
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '16px',
+                    border: '2px dashed var(--noor-purple)',
+                    background: 'transparent',
+                    color: 'var(--noor-purple)',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    marginTop: '10px'
+                  }}
+                >
+                  Mode Démo (Aperçu)
+                </button>
               </form>
 
               <div className="forgot-pass">
