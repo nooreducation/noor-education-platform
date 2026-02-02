@@ -1,153 +1,154 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import {
-    GraduationCap,
-    LayoutDashboard,
-    BookOpen,
-    Users,
-    Settings,
-    LogOut,
-    Menu,
-    X,
-    Bell
+  GraduationCap,
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  Bell,
+  TrendingUp
 } from 'lucide-react';
 import { useState } from 'react';
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user, role, signOut } = useAuthStore();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, role, signOut } = useAuthStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    const handleLogout = async () => {
-        try {
-            await signOut();
-            navigate('/login');
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-    };
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
-    // Navigation items based on role
-    const getNavItems = () => {
-        switch (role) {
-            case 'admin':
-                return [
-                    { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-                    { path: '/admin/students', icon: Users, label: 'Élèves' },
-                    { path: '/admin/courses', icon: BookOpen, label: 'Cours' },
-                    { path: '/admin/settings', icon: Settings, label: 'Paramètres' }
-                ];
-            case 'student':
-                return [
-                    { path: '/student', icon: LayoutDashboard, label: 'Dashboard' },
-                    { path: '/student/courses', icon: BookOpen, label: 'Mes Cours' },
-                    { path: '/student/progress', icon: TrendingUp, label: 'Progression' },
-                    { path: '/student/profile', icon: Settings, label: 'Profil' }
-                ];
-            case 'parent':
-                return [
-                    { path: '/parent', icon: LayoutDashboard, label: 'Dashboard' },
-                    { path: '/parent/children', icon: Users, label: 'Mes Enfants' },
-                    { path: '/parent/messages', icon: Bell, label: 'Messages' },
-                    { path: '/parent/settings', icon: Settings, label: 'Paramètres' }
-                ];
-            default:
-                return [];
-        }
-    };
+  // Navigation items based on role
+  const getNavItems = () => {
+    switch (role) {
+      case 'admin':
+        return [
+          { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+          { path: '/admin/students', icon: Users, label: 'Élèves' },
+          { path: '/admin/courses', icon: BookOpen, label: 'Cours' },
+          { path: '/admin/settings', icon: Settings, label: 'Paramètres' }
+        ];
+      case 'student':
+        return [
+          { path: '/student', icon: LayoutDashboard, label: 'Dashboard' },
+          { path: '/student/courses', icon: BookOpen, label: 'Mes Cours' },
+          { path: '/student/progress', icon: TrendingUp, label: 'Progression' },
+          { path: '/student/profile', icon: Settings, label: 'Profil' }
+        ];
+      case 'parent':
+        return [
+          { path: '/parent', icon: LayoutDashboard, label: 'Dashboard' },
+          { path: '/parent/children', icon: Users, label: 'Mes Enfants' },
+          { path: '/parent/messages', icon: Bell, label: 'Messages' },
+          { path: '/parent/settings', icon: Settings, label: 'Paramètres' }
+        ];
+      default:
+        return [];
+    }
+  };
 
-    const navItems = getNavItems();
+  const navItems = getNavItems();
 
-    if (!user) return null;
+  if (!user) return null;
 
-    return (
-        <>
-            <nav className="navbar">
-                <div className="navbar-container">
-                    {/* Logo */}
-                    <Link to="/" className="navbar-logo">
-                        <div className="logo-icon">
-                            <GraduationCap size={28} />
-                        </div>
-                        <span className="logo-text">Noor Education</span>
-                    </Link>
+  return (
+    <>
+      <nav className="navbar">
+        <div className="navbar-container">
+          {/* Logo */}
+          <Link to="/" className="navbar-logo">
+            <div className="logo-icon">
+              <GraduationCap size={28} />
+            </div>
+            <span className="logo-text">Noor Education</span>
+          </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="navbar-nav">
-                        {navItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    className={`nav-link ${isActive ? 'active' : ''}`}
-                                >
-                                    <Icon size={20} />
-                                    <span>{item.label}</span>
-                                </Link>
-                            );
-                        })}
-                    </div>
+          {/* Desktop Navigation */}
+          <div className="navbar-nav">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
 
-                    {/* Right Section */}
-                    <div className="navbar-actions">
-                        <button className="icon-button">
-                            <Bell size={20} />
-                            <span className="notification-badge">3</span>
-                        </button>
+          {/* Right Section */}
+          <div className="navbar-actions">
+            <button className="icon-button">
+              <Bell size={20} />
+              <span className="notification-badge">3</span>
+            </button>
 
-                        <div className="user-menu">
-                            <div className="user-avatar">
-                                {user?.email?.charAt(0).toUpperCase()}
-                            </div>
-                        </div>
+            <div className="user-menu">
+              <div className="user-avatar">
+                {user?.email?.charAt(0).toUpperCase()}
+              </div>
+            </div>
 
-                        <button className="icon-button logout-btn" onClick={handleLogout}>
-                            <LogOut size={20} />
-                        </button>
+            <button className="icon-button logout-btn" onClick={handleLogout}>
+              <LogOut size={20} />
+            </button>
 
-                        {/* Mobile Menu Button */}
-                        <button
-                            className="mobile-menu-btn"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        >
-                            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            {/* Mobile Menu Button */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+      </nav>
 
-            {/* Mobile Menu */}
-            {mobileMenuOpen && (
-                <div className="mobile-menu">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = location.pathname === item.path;
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`mobile-nav-link ${isActive ? 'active' : ''}`}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <Icon size={20} />
-                                <span>{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                    <button
-                        className="mobile-nav-link logout"
-                        onClick={handleLogout}
-                    >
-                        <LogOut size={20} />
-                        <span>Déconnexion</span>
-                    </button>
-                </div>
-            )}
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+          <button
+            className="mobile-nav-link logout"
+            onClick={handleLogout}
+          >
+            <LogOut size={20} />
+            <span>Déconnexion</span>
+          </button>
+        </div>
+      )}
 
-            <style jsx>{`
+      <style jsx>{`
         .navbar {
           position: sticky;
           top: 0;
@@ -367,8 +368,8 @@ const Navbar = () => {
           }
         }
       `}</style>
-        </>
-    );
+    </>
+  );
 };
 
 export default Navbar;
