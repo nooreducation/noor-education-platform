@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     ChevronLeft,
     ChevronRight,
@@ -7,89 +7,32 @@ import {
     Star,
     Volume2,
     ArrowRight,
-    BookOpen,
     Trophy,
-    RotateCcw,
-    Flag,
-    Image as ImageIcon
+    RotateCcw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+// --- COURSE REGISTRY ---
+// Dans une vraie application, ceci viendrait d'une API ou d'un import dynamique
+import { COURSE_CONTENT as DATA_THE_LAST_PHOTO } from '../data/course-the-last-photo';
 
-// --- CONFIGURATION DU COURS ---
-const COURSE_DATA = {
-    title: "The Last Photo",
-    level: "Niveau 1",
-    slides: [
-        {
-            id: 'slide-0',
-            type: 'SPLASH',
-            title: 'Welcome!',
-            image: '/course-assets/cover.png',
-            description: 'Story 6 : Billy and the Queen'
-        },
-        {
-            id: 'slide-1',
-            type: 'STORY',
-            title: 'Lisez l\'histoire',
-            url: 'https://www.noor.tn/stories/his07/index.html'
-        },
-        {
-            id: 'slide-2',
-            type: 'MATCHING_PAIRS',
-            title: 'Exercice 1 : Vocabulaire',
-            instruction: 'Reliez chaque mot anglais à son équivalent français.',
-            pairs: [
-                { en: 'laugh', fr: 'rire' },
-                { en: 'look for', fr: 'chercher' },
-                { en: 'tired', fr: 'fatigué' },
-                { en: 'picture', fr: 'image' },
-                { en: 'want', fr: 'vouloir' },
-                { en: 'wait', fr: 'attendre' }
-            ]
-        },
-        {
-            id: 'slide-3',
-            type: 'DRAG_IMAGE',
-            title: 'Exercice 2 : Identification',
-            instruction: 'Sélectionnez le bon mot pour chaque image.',
-            items: [
-                { id: 1, image: '/course-assets/money.png', correct: 'money', options: ['money', 'a map', 'a box'] },
-                { id: 2, image: '/course-assets/tent.png', correct: 'a tent', options: ['a tent', 'a house', 'a bag'] },
-                { id: 3, image: '/course-assets/cap.png', correct: 'a cap', options: ['a hat', 'a cap', 'glasses'] },
-                { id: 4, image: '/course-assets/man.png', correct: 'a man', options: ['a boy', 'a man', 'a doctor'] },
-                { id: 5, image: '/course-assets/rucksack.png', correct: 'a rucksack', options: ['a rucksack', 'a suitcase', 'a packet'] },
-                { id: 6, image: '/course-assets/newspaper.png', correct: 'a newspaper', options: ['a book', 'a newspaper', 'a letter'] }
-            ]
-        },
-        {
-            id: 'slide-4',
-            type: 'GAP_FILL',
-            title: 'Exercice 3 : Les Contraires',
-            instruction: 'Complétez les paires de contraires.',
-            pairs: [
-                { word: 'old', opposite: 'new' },
-                { word: 'near', opposite: 'far' },
-                { word: 'happy', opposite: 'angry' },
-                { word: 'cry', opposite: 'laugh' },
-                { word: 'give', opposite: 'take' }
-            ],
-            bank: ['new', 'far', 'laugh', 'take', 'angry']
-        },
-        {
-            id: 'slide-report',
-            type: 'REPORT',
-            title: 'Bilan de la leçon'
-        }
-    ]
+const COURSE_REGISTRY = {
+    'the-last-photo': DATA_THE_LAST_PHOTO,
+    // 'autre-cours-id': DATA_AUTRE_COURS
 };
+
+import { useAuthStore } from '../stores/authStore';
+import { supabase } from '../lib/supabase';
 
 // --- COMPOSANTS DE SLIDES ---
 
-const SlashSlide = ({ onNext, data }) => (
+const SlashSlide = ({ onNext, onExit, data }) => (
     <div className="slide-splash fade-in">
-        <h1 className="splash-title">{COURSE_DATA.title}</h1>
+        <button className="btn-exit-top" onClick={onExit} title="Quitter le cours">
+            <ChevronLeft size={20} /> Retour
+        </button>
+        <h1 className="splash-title">{data.title}</h1>
         <div className="splash-card">
-            <img src={data.image} alt="Course Cover" className="splash-img" onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=Noor+Education'} />
+            <img src={data.image} alt="Course Cover" className="splash-img" onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400'} />
             <p className="splash-desc">{data.description}</p>
             <button className="btn-start pulse" onClick={onNext}>
                 Commencer l'aventure <ChevronRight />
@@ -112,12 +55,11 @@ const StorySlide = ({ data }) => (
 const MatchingPairsSlide = ({ data, onScore }) => {
     const [selectedEng, setSelectedEng] = useState(null);
     const [matches, setMatches] = useState({});
-
-    // Shuffle only on mount
     const [shuffledFr, setShuffledFr] = useState([]);
+
     useEffect(() => {
         setShuffledFr([...data.pairs].sort(() => Math.random() - 0.5));
-    }, []);
+    }, [data]); // Re-shuffle if data changes (next slide)
 
     const handleMatch = (frWord) => {
         if (!selectedEng) return;
@@ -128,7 +70,6 @@ const MatchingPairsSlide = ({ data, onScore }) => {
             setMatches(newMatches);
             setSelectedEng(null);
 
-            // Calcul du score partiel (1 point par paire)
             if (Object.keys(newMatches).length === data.pairs.length) {
                 onScore(100);
                 toast.success("Parfait !");
@@ -154,19 +95,16 @@ const MatchingPairsSlide = ({ data, onScore }) => {
                 ))}
             </div>
             <div className="col">
-                {shuffledFr.map(p => {
-                    const isMatched = Object.values(matches).includes(p.fr);
-                    return (
-                        <button
-                            key={p.fr}
-                            className={`word-card fr ${isMatched ? 'matched' : ''}`}
-                            onClick={() => !isMatched && handleMatch(p.fr)}
-                            disabled={isMatched}
-                        >
-                            {p.fr}
-                        </button>
-                    )
-                })}
+                {shuffledFr.map(p => (
+                    <button
+                        key={p.fr}
+                        className={`word-card fr ${Object.values(matches).includes(p.fr) ? 'matched' : ''}`}
+                        onClick={() => !Object.values(matches).includes(p.fr) && handleMatch(p.fr)}
+                        disabled={Object.values(matches).includes(p.fr)}
+                    >
+                        {p.fr}
+                    </button>
+                ))}
             </div>
         </div>
     );
@@ -179,20 +117,6 @@ const DragImageSlide = ({ data, onScore }) => {
         const newAnswers = { ...answers, [itemId]: option };
         setAnswers(newAnswers);
 
-        // Check if item is correct immediately for feedback
-        const item = data.items.find(i => i.id === itemId);
-        if (item.correct === option) {
-            // Optional instant feedback
-        }
-
-        // Calculate score
-        const totalItems = data.items.length;
-        const correctCount = data.items.reduce((acc, curr) => {
-            return acc + (newAnswers[curr.id] === curr.correct ? 1 : 0);
-        }, 0) + (item.correct === option ? 1 : 0) - (answers[itemId] && answers[itemId] === item.correct ? 1 : 0);
-        // Logic above is slightly flawed for live update, simpler to recalc all
-
-        // Simpler recalc:
         let correct = 0;
         data.items.forEach(i => {
             const userAns = (i.id === itemId) ? option : answers[i.id];
@@ -200,7 +124,7 @@ const DragImageSlide = ({ data, onScore }) => {
         });
 
         if (Object.keys(newAnswers).length === data.items.length) {
-            onScore(Math.round((correct / totalItems) * 100));
+            onScore(Math.round((correct / data.items.length) * 100));
         }
     };
 
@@ -208,7 +132,6 @@ const DragImageSlide = ({ data, onScore }) => {
         <div className="image-grid fade-in">
             {data.items.map(item => {
                 const isCorrect = answers[item.id] === item.correct;
-                const isAnswered = !!answers[item.id];
 
                 return (
                     <div key={item.id} className={`image-card ${isCorrect ? 'correct' : ''}`}>
@@ -242,7 +165,6 @@ const GapFillSlide = ({ data, onScore }) => {
         const newFilled = { ...filled, [word]: bankWord };
         setFilled(newFilled);
 
-        // Score calc
         let correct = 0;
         data.pairs.forEach(p => {
             const userAns = (p.word === word) ? bankWord : filled[p.word];
@@ -278,9 +200,7 @@ const GapFillSlide = ({ data, onScore }) => {
                         <button
                             key={w}
                             className="bank-btn"
-                            draggable
                             onClick={() => {
-                                // Simple click to fill next empty
                                 const nextEmpty = data.pairs.find(p => !filled[p.word]);
                                 if (nextEmpty) handleFill(nextEmpty.word, w);
                             }}
@@ -294,6 +214,21 @@ const GapFillSlide = ({ data, onScore }) => {
     );
 };
 
+const LabelInfoSlide = ({ data, onScore }) => (
+    <div className="label-slide fade-in">
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+            <img src={data.image} alt="Labeling" style={{ maxWidth: '100%', borderRadius: '15px' }} />
+            {/* Simulation of labels for non-coordinate system */}
+        </div>
+        <div className="label-actions">
+            {data.labels.map(l => (
+                <div key={l.id} className="label-tag">{l.text}</div>
+            ))}
+        </div>
+        <button className="btn-validation" onClick={() => { onScore(100); toast.success('Correct !'); }}>Valider</button>
+    </div>
+);
+
 const ReportSlide = ({ scores, onExit }) => {
     const totalScore = Object.values(scores).reduce((a, b) => a + b, 0) / Math.max(1, Object.keys(scores).length);
 
@@ -305,19 +240,14 @@ const ReportSlide = ({ scores, onExit }) => {
                 <span className="score-lbl">Score Global</span>
                 <span className="score-val">{Math.round(totalScore)}%</span>
             </div>
-
             <div className="details-list">
                 {Object.entries(scores).map(([slideId, score]) => (
                     <div key={slideId} className="detail-item">
-                        <span>Exercice {slideId.split('-')[1]}</span>
-                        <div className="micro-bar">
-                            <div className="micro-fill" style={{ width: `${score}%`, background: score > 50 ? '#48BB78' : '#F56565' }}></div>
-                        </div>
+                        <span>{slideId}</span>
                         <strong>{score}%</strong>
                     </div>
                 ))}
             </div>
-
             <button className="btn-exit" onClick={onExit}>Retour au Dashboard</button>
         </div>
     );
@@ -327,16 +257,81 @@ const ReportSlide = ({ scores, onExit }) => {
 
 const ModernCourse = () => {
     const navigate = useNavigate();
+    const { courseId } = useParams(); // Récupère l'ID depuis l'URL (ex: 'the-last-photo')
+    const { user } = useAuthStore();
+
+    // CHARGEMENT DU CONTENU DU COURS
+    const courseData = COURSE_REGISTRY[courseId];
+
     const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
     const [scores, setScores] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
 
-    const currentSlide = COURSE_DATA.slides[currentSlideIdx];
+    // Si le cours n'existe pas
+    if (!courseData) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
+                <h2>Cours introuvable</h2>
+                <p>L'identifiant "{courseId}" ne correspond à aucun cours.</p>
+                <button onClick={() => navigate('/student')} style={{ padding: '10px 20px', background: '#6C63FF', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                    Retour au Dashboard
+                </button>
+            </div>
+        );
+    }
+
+    const currentSlide = courseData.slides[currentSlideIdx];
     const isFirst = currentSlideIdx === 0;
-    const isLast = currentSlideIdx === COURSE_DATA.slides.length - 1;
+    const isLast = currentSlideIdx === courseData.slides.length - 1;
+
+    // Load Progress
+    useEffect(() => {
+        const loadProgress = async () => {
+            if (!user) return setIsLoading(false);
+
+            const { data, error } = await supabase
+                .from('student_course_progress')
+                .select('*')
+                .eq('student_id', user.id)
+                .eq('course_slug', courseId)
+                .single();
+
+            if (data) {
+                setScores(data.scores || {});
+                // Optional: Resume where left off
+                // setCurrentSlideIdx(data.current_slide_index || 0);
+            }
+            setIsLoading(false);
+        };
+        loadProgress();
+    }, [user, courseId]);
+
+    const saveProgress = async (newScores, idx) => {
+        if (!user) return;
+
+        // Mock fallback if DB table missing
+        try {
+            const completedSlides = Object.keys(newScores);
+            await supabase
+                .from('student_course_progress')
+                .upsert({
+                    student_id: user.id,
+                    course_slug: courseId,
+                    completed_slides: completedSlides,
+                    scores: newScores,
+                    current_slide_index: idx,
+                    last_updated: new Date()
+                }, { onConflict: 'student_id, course_slug' });
+        } catch (e) {
+            console.log('DB Save skipped');
+        }
+    };
 
     const nextSlide = () => {
-        if (currentSlideIdx < COURSE_DATA.slides.length - 1) {
-            setCurrentSlideIdx(prev => prev + 1);
+        if (currentSlideIdx < courseData.slides.length - 1) {
+            const nextIdx = currentSlideIdx + 1;
+            setCurrentSlideIdx(nextIdx);
+            saveProgress(scores, nextIdx);
         }
     };
 
@@ -347,44 +342,49 @@ const ModernCourse = () => {
     };
 
     const handleScore = (score) => {
-        setScores(prev => ({ ...prev, [currentSlide.id]: score }));
+        const newScores = { ...scores, [currentSlide.id]: score };
+        setScores(newScores);
+        saveProgress(newScores, currentSlideIdx);
     };
 
     const finishCourse = () => {
-        toast.success("Progression sauvegardée !");
+        toast.success("Cours terminé !");
         navigate('/student');
     };
+
+    if (isLoading) return <div className="loading">Chargement...</div>;
 
     // Render content based on type
     const renderContent = () => {
         switch (currentSlide.type) {
-            case 'SPLASH': return <SlashSlide onNext={nextSlide} data={currentSlide} />;
+            case 'SPLASH': return <SlashSlide onNext={nextSlide} onExit={() => navigate(-1)} data={currentSlide} />;
             case 'STORY': return <StorySlide data={currentSlide} />;
             case 'MATCHING_PAIRS': return <MatchingPairsSlide data={currentSlide} onScore={handleScore} />;
             case 'DRAG_IMAGE': return <DragImageSlide data={currentSlide} onScore={handleScore} />;
             case 'GAP_FILL': return <GapFillSlide data={currentSlide} onScore={handleScore} />;
-            case 'REPORT': return <ReportSlide scores={scores} onExit={finishCourse} />;
+            case 'LABEL_IMAGE': return <LabelInfoSlide data={currentSlide} onScore={handleScore} />;
+            case 'REPORT': return <ReportSlide scores={scores} onExit={() => navigate(-1)} />;
             default: return <div>Unknown Slide Type</div>;
         }
     };
 
     return (
         <div className="modern-course-viewer">
-            {/* Top Bar (Hidden on Splash/Report for immersion) */}
+            {/* Top Bar */}
             {currentSlide.type !== 'SPLASH' && currentSlide.type !== 'REPORT' && (
                 <header className="viewer-header">
-                    <button className="icon-btn" onClick={() => navigate('/student')}>
+                    <button className="icon-btn" onClick={() => navigate(-1)}>
                         <ChevronLeft />
                     </button>
                     <div className="progress-track">
                         <div className="track-info">
                             <span>{currentSlide.title}</span>
-                            <span className="step-count">{currentSlideIdx + 1}/{COURSE_DATA.slides.length}</span>
+                            <span className="step-count">{currentSlideIdx + 1}/{courseData.slides.length}</span>
                         </div>
                         <div className="progress-line">
                             <div
                                 className="progress-fill-main"
-                                style={{ width: `${((currentSlideIdx) / (COURSE_DATA.slides.length - 1)) * 100}%` }}
+                                style={{ width: `${((currentSlideIdx) / (courseData.slides.length - 1)) * 100}%` }}
                             ></div>
                         </div>
                     </div>
@@ -396,14 +396,12 @@ const ModernCourse = () => {
             )}
 
             <main className="viewer-content">
-                {/* Instruction Banner */}
                 {currentSlide.instruction && (
                     <div className="instruction-banner">
                         <Volume2 size={20} />
                         <p>{currentSlide.instruction}</p>
                     </div>
                 )}
-
                 {renderContent()}
             </main>
 
@@ -510,8 +508,29 @@ const ModernCourse = () => {
                     justify-content: center;
                     text-align: center;
                     min-height: 80vh;
+                    position: relative; /* Crucial pour le bouton absolu */
+                    width: 100%;
                 }
                 .splash-title { font-size: 2.5rem; color: #2D3748; margin-bottom: 30px; }
+                .btn-exit-top {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    background: white;
+                    border: 1px solid #E2E8F0;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    color: #4A5568;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    z-index: 100; /* Toujours au dessus */
+                }
+                .btn-exit-top:hover { background: #F7FAFC; transform: translateX(-3px); }
                 .splash-card {
                     background: white;
                     padding: 20px;
@@ -576,6 +595,9 @@ const ModernCourse = () => {
                 .filled-word.correct { color: #48BB78; }
                 .bank-items { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
                 .bank-btn { padding: 10px 20px; background: white; border: 1px solid #CBD5E0; border-radius: 20px; cursor: grab; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+                
+                .label-tag { background: #EBF8FF; color: #2B6CB0; padding: 5px 10px; border-radius: 5px; margin: 5px; display: inline-block; }
+                .btn-validation { width: 100%; margin-top: 20px; padding: 12px; background: #48BB78; color: white; border:none; border-radius:8px; cursor:pointer;}
 
                 /* Report */
                 .report-card { text-align: center; background: white; padding: 40px; border-radius: 20px; max-width: 500px; margin: 40px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -588,6 +610,50 @@ const ModernCourse = () => {
 
                 .fade-in { animation: fadeIn 0.5s ease-out; }
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+                /* --- RESPONSIVE DESIGN --- */
+                @media (max-width: 768px) {
+                    .viewer-header {
+                        padding: 10px 15px;
+                        gap: 15px;
+                    }
+                    .track-info span { font-size: 0.8rem; }
+                    .score-badge span { display: none; } /* Show only star on small screens */
+                    
+                    .viewer-content {
+                        padding: 15px;
+                    }
+
+                    .splash-title { font-size: 1.8rem; }
+                    .splash-img { height: 200px; }
+
+                    .matching-grid {
+                        grid-template-columns: 1fr; /* Stack columns */
+                        gap: 15px;
+                    }
+
+                    .image-grid {
+                        grid-template-columns: 1fr; /* 1 column for images on mobile */
+                    }
+                    .img-wrapper { height: 160px; }
+                    
+                    .story-frame {
+                        height: 50vh; /* Adjust height for mobile */
+                    }
+
+                    .word-card {
+                        padding: 12px;
+                        font-size: 1rem;
+                    }
+
+                    .viewer-footer {
+                        padding: 10px 15px;
+                    }
+                    .nav-btn {
+                        padding: 8px 15px;
+                        font-size: 0.9rem;
+                    }
+                }
             `}</style>
         </div>
     );

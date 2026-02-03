@@ -9,8 +9,7 @@ import {
   EyeOff,
   ShieldCheck,
   GraduationCap,
-  Smartphone,
-  UserCircle,
+  Users,
   BookOpen,
   BrainCircuit,
   Lightbulb
@@ -21,7 +20,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { signIn } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState('admin'); // 'admin', 'teacher', 'app'
+  const [activeTab, setActiveTab] = useState('app'); // 'admin', 'parent', 'app'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,20 +34,15 @@ const Login = () => {
       // Map tabs to system roles
       let targetRole = 'student'; // Default
       if (activeTab === 'admin') targetRole = 'admin';
-      if (activeTab === 'teacher') targetRole = 'admin'; // Teachers use admin panel for now
+      if (activeTab === 'parent') targetRole = 'parent';
 
       const { user, role } = await signIn(email, password);
 
-      // Verify role match
-      if (role && role !== targetRole && role !== 'admin') {
-        // Admin can access everything, otherwise strict check
-        // Simplification: just allow login if auth works, redirect handled by App.jsx
-      }
+      toast.success(`Bienvenue !`);
 
-      toast.success(`Bienvenue ${user.email} !`);
-
-      // Smart redirect
+      // Smart redirect based on activeTab
       if (activeTab === 'admin') navigate('/admin');
+      else if (activeTab === 'parent') navigate('/parent');
       else if (activeTab === 'app') navigate('/student');
       else navigate('/');
 
@@ -66,7 +60,7 @@ const Login = () => {
 
         {/* Header - Simple Logo */}
         <div className="login-logo-section">
-          <AnimatedLogo size={280} />
+          <AnimatedLogo size={320} />
         </div>
 
         <div className="login-body">
@@ -75,22 +69,22 @@ const Login = () => {
 
           <div className="role-selector-modern">
             <button
-              className={`role-tab ${activeTab === 'admin' ? 'active' : ''}`}
-              onClick={() => setActiveTab('admin')}
-            >
-              <ShieldCheck size={18} /> Administrateur
-            </button>
-            <button
-              className={`role-tab ${activeTab === 'teacher' ? 'active' : ''}`}
-              onClick={() => setActiveTab('teacher')}
-            >
-              <UserCircle size={18} /> Enseignant
-            </button>
-            <button
               className={`role-tab ${activeTab === 'app' ? 'active' : ''}`}
               onClick={() => setActiveTab('app')}
             >
-              <Smartphone size={18} /> App
+              <GraduationCap size={18} /> Apprenant
+            </button>
+            <button
+              className={`role-tab ${activeTab === 'parent' ? 'active' : ''}`}
+              onClick={() => setActiveTab('parent')}
+            >
+              <Users size={18} /> Parent
+            </button>
+            <button
+              className={`role-tab ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={() => setActiveTab('admin')}
+            >
+              <ShieldCheck size={18} /> Admin
             </button>
           </div>
 
@@ -132,11 +126,7 @@ const Login = () => {
               {loading ? 'Connexion...' : 'Se Connecter'}
             </button>
 
-            {activeTab === 'admin' && (
-              <div style={{ marginTop: '15px', padding: '10px', background: '#FFF5F5', borderRadius: '10px', fontSize: '0.8rem', color: '#E53E3E' }}>
-                <strong>Dev Hint:</strong> admin@noor.com / Admin123!
-              </div>
-            )}
+
             {activeTab === 'app' && (
               <button
                 type="button"

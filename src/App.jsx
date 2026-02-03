@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import ParentDashboard from './pages/ParentDashboard';
 import ModernCourse from './pages/ModernCourse';
+import SubjectPage from './pages/SubjectPage';
 
 // Components
 import Navbar from './components/Navbar';
@@ -102,11 +103,22 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              {/* Dynamic Course Player */}
               <Route
-                path="/student/course-test"
+                path="/student/course/:courseId"
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <ModernCourse />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Subject Page */}
+              <Route
+                path="/student/subject/:subjectId"
+                element={
+                  <ProtectedRoute allowedRoles={['student']}>
+                    <SubjectPage />
                   </ProtectedRoute>
                 }
               />

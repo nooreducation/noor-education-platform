@@ -1874,99 +1874,31 @@ p {
   justify-content: center;
   background: #F0F2F5;
   font-family: 'Outfit', sans-serif;
-  padding: 20px;
+  padding: 0;
+  /* Full screen - no padding */
 }
 
 .login-card-modern {
   background: white;
   width: 100%;
-  max-width: 440px;
-  border-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  position: relative;
-  min-height: 800px;
+  max-width: 100%;
+  /* Default mobile is full */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-y: auto;
 }
 
 .login-logo-section {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 60px;
-  padding-bottom: 30px;
-  width: 100%;
-}
-
-.login-header-curve {
-  /* Deprecated */
-  display: none;
-}
-
-.brand-box {
-  /* Deprecated */
-  display: none;
-}
-
-
-
-.header-circles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-}
-
-.circle-deco {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.c1 {
-  width: 300px;
-  height: 300px;
-  top: -100px;
-  left: -100px;
-}
-
-.c2 {
-  width: 200px;
-  height: 200px;
-  bottom: -50px;
-  right: -50px;
-}
-
-.c3 {
-  width: 100px;
-  height: 100px;
-  top: 50px;
-  right: 20%;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.brand-box {
+  padding: 40px 20px;
   background: white;
-  padding: 15px 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: -30px;
-}
-
-.brand-text {
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #2D3748;
-  font-size: 0.8rem;
-  margin-top: 5px;
+  /* Fond blanc pour faire ressortir le logo bleu */
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .login-body {
@@ -1975,6 +1907,45 @@ p {
   display: flex;
   flex-direction: column;
   text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .login-card-modern {
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .login-logo-section {
+    width: 45%;
+    height: 100%;
+    padding: 0;
+    background: white;
+    /* Fond blanc persistant sur Desktop */
+    border-radius: 0;
+    border-right: 1px solid var(--border-color);
+    z-index: 2;
+  }
+
+  .login-body {
+    width: 50%;
+    padding: 60px;
+    justify-content: center;
+    max-width: 550px;
+  }
+
+  .welcome-title {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+
+  .welcome-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+  }
 }
 
 .welcome-title {
@@ -1996,13 +1967,14 @@ p {
   border-radius: 15px;
   display: flex;
   margin-bottom: 25px;
+  border: 1px solid #EDF2F7;
 }
 
 .role-tab {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 10px;
+  padding: 12px 10px;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -2013,6 +1985,11 @@ p {
   align-items: center;
   justify-content: center;
   gap: 6px;
+}
+
+.role-tab:hover:not(.active) {
+  background: rgba(123, 97, 255, 0.05);
+  color: #7B61FF;
 }
 
 .role-tab.active {
@@ -2073,12 +2050,18 @@ p {
 .bottom-illustration {
   margin-top: auto;
   position: relative;
-  height: 150px;
+  height: 120px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   overflow: hidden;
-  border-radius: 0 0 30px 30px;
+  padding-bottom: 20px;
+}
+
+@media (min-width: 1024px) {
+  .bottom-illustration {
+    height: 100px;
+  }
 }
 
 .illus-content {
@@ -2086,16 +2069,16 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 20px;
+  padding: 0 40px;
 }
 
 .illus-item {
   font-size: 4rem;
   filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
-  animation: float 4s ease-in-out infinite;
+  animation: float-login 4s ease-in-out infinite;
 }
 
-@keyframes float {
+@keyframes float-login {
   0% {
     transform: translateY(0);
   }
@@ -2108,6 +2091,7 @@ p {
     transform: translateY(0);
   }
 }
+
 
 /* Fixes */
 .badge-new {
@@ -2147,4 +2131,189 @@ p {
   transform: translateY(-5px) scale(1.01);
   box-shadow: 0 15px 30px rgba(72, 52, 212, 0.15);
   border-style: solid !important;
+}
+
+/* --- MODERN COURSE CARDS (Shared) --- */
+.course-card-modern {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: left;
+}
+
+.course-card-modern:hover:not(.locked) {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
+
+.course-card-modern.locked {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.card-thumb {
+  height: 180px;
+  background: #EDF2F7;
+  position: relative;
+  width: 100%;
+}
+
+/* --- SUBJECT PAGE STYLES --- */
+.subject-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.subject-header {
+  padding: 60px 40px;
+  border-radius: 0 0 40px 40px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 40px;
+}
+
+.subject-header .back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 30px;
+  transition: all 0.2s;
+  color: white;
+}
+
+.subject-header .back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-5px);
+}
+
+.header-content h1 {
+  font-size: 3rem;
+  margin: 0;
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-content p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-top: 10px;
+  max-width: 600px;
+}
+
+.subject-icon-large {
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  opacity: 0.15;
+  transform: rotate(-15deg);
+}
+
+.courses-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 30px 60px;
+}
+
+.courses-container h2 {
+  font-size: 1.75rem;
+  color: var(--noor-secondary);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.subject-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-body h3 {
+  margin: 0 0 5px 0 !important;
+  color: #2D3748 !important;
+  font-size: 1.25rem !important;
+}
+
+.card-body p {
+  color: #718096 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 15px !important;
+  line-height: 1.4 !important;
+}
+
+.card-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  color: #A0AEC0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.progress-ring {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: conic-gradient(var(--noor-primary) calc(var(--p) * 1%), #EDF2F7 0);
+  display: inline-block;
+}
+
+.btn-start-course {
+  width: 100%;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.2s;
+}
+
+.btn-start-course:hover {
+  filter: brightness(1.1);
 }

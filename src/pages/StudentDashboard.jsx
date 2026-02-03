@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Play,
@@ -8,18 +9,12 @@ import {
   Star,
   FileText,
   Video,
-  CheckCircle2,
-  LayoutDashboard,
-  Bell,
-  Users,
-  Calendar,
-  Target,
-  ClipboardList,
-  DollarSign,
-  FileSearch
+  Bell
 } from 'lucide-react';
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
+
   // Original Mock Data
   const student = {
     name: 'Ahmed',
@@ -29,11 +24,7 @@ const StudentDashboard = () => {
 
   const quickActions = [
     { id: 'courses', label: 'Mes Cours', icon: BookOpen, color: '#4834D4' },
-    { id: 'schedule', label: 'Planning', icon: Calendar, color: '#38A169' },
     { id: 'results', label: 'Résultats', icon: Award, color: '#805AD5' },
-    { id: 'homework', label: 'Devoirs', icon: ClipboardList, color: '#E53E3E' },
-    { id: 'attendance', label: 'Présence', icon: FileSearch, color: '#3182CE' },
-    { id: 'payments', label: 'Paiements', icon: DollarSign, color: '#D69E2E' },
     { id: 'exams', label: 'Examens', icon: FileText, color: '#D53F8C' },
     { id: 'notices', label: 'Annonces', icon: Bell, color: '#ED8936' },
     { id: 'resources', label: 'Ressources', icon: Video, color: '#4A5568' }
@@ -42,14 +33,15 @@ const StudentDashboard = () => {
   const courses = [
     {
       id: 1,
-      title: 'Mathématiques - Algèbre',
+      title: 'Mathématiques',
       teacher: 'Prof. Ahmed Hassan',
       progress: 75,
       lessons: 24,
       completed: 18,
       color: '#4834D4',
       emoji: '📐',
-      nextLesson: 'Les équations du second degré'
+      nextLesson: 'Algèbre : Équations',
+      link: '/student/subject/maths'
     },
     {
       id: 2,
@@ -60,18 +52,32 @@ const StudentDashboard = () => {
       completed: 12,
       color: '#00B894',
       emoji: '⚡',
-      nextLesson: 'L\'électromagnétisme'
+      nextLesson: 'L\'électromagnétisme',
+      link: '/student/subject/physique'
     },
     {
       id: 3,
-      title: 'Français - Grammaire',
+      title: 'Français',
       teacher: 'Prof. Marie Dubois',
       progress: 85,
       lessons: 16,
       completed: 13,
       color: '#FF4D6D',
       emoji: '📚',
-      nextLesson: 'Les propositions subordonnées'
+      nextLesson: 'Grammaire : Subordonnées',
+      link: '/student/subject/francais'
+    },
+    {
+      id: 4,
+      title: 'Anglais',
+      teacher: 'Mrs. Robertson',
+      progress: 10,
+      lessons: 15,
+      completed: 1,
+      color: '#E84393',
+      emoji: '🇬🇧',
+      nextLesson: 'The Last Photo',
+      link: '/student/subject/anglais'
     }
   ];
 
@@ -118,40 +124,44 @@ const StudentDashboard = () => {
           <div className="courses-section-stellar">
             <div className="section-header-stellar">
               <Star size={24} className="icon-pulse" color="var(--noor-primary)" />
-              <h2>Nouveau : Cours Interactif</h2>
-              <span className="badge-new">Format Premium</span>
+              <h2>À la une</h2>
+              <span className="badge-new">Nouveau Module</span>
             </div>
 
             <div
-              className="course-card-stellar-container special-test-card"
-              onClick={() => window.location.href = '/student/course-test'}
-              style={{ cursor: 'pointer', marginBottom: '40px' }}
+              className="course-card-modern scale-in"
+              onClick={() => navigate('/student/subject/anglais')}
+              style={{ cursor: 'pointer', marginBottom: '40px', maxWidth: '450px' }}
             >
-              <div className="course-card-stellar" style={{ border: '2px dashed var(--noor-primary)', background: 'rgba(72, 52, 212, 0.05)' }}>
-                <div className="course-badge" style={{ background: 'var(--noor-primary)' }}>Nouveau</div>
-                <div className="course-content-stellar">
-                  <div className="course-main-info">
-                    <div className="course-emoji-box" style={{ background: 'var(--noor-primary)' }}>🇬🇧</div>
-                    <div className="course-text-details">
-                      <h3>Anglais : The Last Photo</h3>
-                      <p>Format Interactif Noor 2.0 • Testez l'expérience</p>
-                    </div>
+              <div className="card-thumb">
+                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600" alt="The Last Photo" />
+                <div className="course-badge" style={{ position: 'absolute', top: '15px', right: '15px', background: 'var(--noor-primary)', padding: '5px 12px', borderRadius: '20px', color: 'white', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 2 }}>Nouveau</div>
+              </div>
+              <div className="card-body">
+                <h3 style={{ margin: '0 0 5px 0', fontSize: '1.4rem' }}>The Last Photo</h3>
+                <p style={{ color: '#718096', marginBottom: '15px' }}>Story 6 : Billy and the Queen</p>
+
+                <div className="card-meta">
+                  <div className="meta-item">
+                    <Clock size={14} /> 15 min
                   </div>
-                  <div className="course-status-row">
-                    <span className="status-label" style={{ color: 'var(--noor-primary)', fontWeight: '700' }}>
-                      Cliquez pour commencer le test
-                    </span>
-                    <button className="continue-btn" style={{ background: 'var(--noor-primary)' }}>
-                      <Play size={16} fill="white" />
-                    </button>
+                  <div className="meta-item" style={{ color: 'var(--noor-primary)' }}>
+                    <TrendingUp size={14} /> 10% complété
                   </div>
                 </div>
+
+                <button
+                  className="btn-start-course"
+                  style={{ background: 'var(--noor-primary)', borderRadius: '15px', padding: '15px' }}
+                >
+                  Reprendre <Play size={18} fill="white" />
+                </button>
               </div>
             </div>
 
             <div className="section-header-stellar">
               <BookOpen size={24} />
-              <h2>Mes Cours en Cours</h2>
+              <h2>Mes Matières</h2>
             </div>
             <div className="courses-grid-stellar">
               {courses.map((course, index) => (
@@ -179,8 +189,11 @@ const StudentDashboard = () => {
                           <Clock size={14} />
                           <span>Suivant: {course.nextLesson}</span>
                         </div>
-                        <button className="continue-btn" style={{ background: course.color }}>
-                          <Play size={16} fill="white" />
+                        <button className="enter-btn-stellar" onClick={() => course.link !== '#' && navigate(course.link)}>
+                          <span>Ouvrir</span>
+                          <div className="icon-circle">
+                            <Play size={18} fill="currentColor" />
+                          </div>
                         </button>
                       </div>
                     </div>
@@ -234,7 +247,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-    </div>
+    </div >
   );
 };
 
