@@ -12,6 +12,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import ParentDashboard from './pages/ParentDashboard';
 import ModernCourse from './pages/ModernCourse';
 import SubjectPage from './pages/SubjectPage';
+import CourseEditor from './pages/CourseEditor';
 
 // Components
 import Navbar from './components/Navbar';
@@ -90,6 +91,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/course-editor"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <CourseEditor />
                   </ProtectedRoute>
                 }
               />
